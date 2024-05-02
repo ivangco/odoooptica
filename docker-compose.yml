@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  odoo:
+    image: odoocustom
+    # build: ./  # Ruta al directorio que contiene el Dockerfile
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./addons:/mnt/extra-addons
+      # - ./odoo:/mnt/extra-addons
+    environment:
+      - DB_USER=odoo
+      - DB_PASSWORD=odoo
+      - DB_HOST=db
+    depends_on:
+      - db 
+
+
+  db:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    # volumes:
+    #   - postgresql-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+
+  nginx:
+    image: nginx:1.21
+    ports:
+      - 8080:80
+    volumes:
+      - ./odoo/odoo.conf:/etc/nginx/conf.d/odoo.conf
+      # - odoo-data:/var/lib/odoo
+    depends_on:
+      - db 
